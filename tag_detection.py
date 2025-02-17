@@ -1,6 +1,6 @@
 import rospy
 from apriltag_ros.msg import AprilTagDetectionArray
-import tkinter as tk
+#import tkinter as tk
 import numpy as np
 from scipy.spatial.transform import Rotation as R
 import os, sys
@@ -43,11 +43,12 @@ def get_heading_from_quaternion(q):
         angles = r.as_euler('xyz', degrees=False)
         return angles[2]
 
-tag_sub = rospy.Subscriber('/mobile_manip/tag_detections', AprilTagDetectionArray, tag_callback)
+def init_tag_detection():
+    tag_sub = rospy.Subscriber('/mobile_manip/tag_detections', AprilTagDetectionArray, tag_callback)
 
-root = tk.Tk()
+#root = tk.Tk()
 
-def refresh():  
+def updateTagDetectionData(x_value, y_value, z_value, orientation_value):
     if (tag_array.detections == []):
         x_value.set(0.00)
         y_value.set(0.00)
@@ -58,34 +59,4 @@ def refresh():
         y_value.set('{:2f}'.format(tag_array.detections[0].pose.pose.pose.position.y))
         z_value.set('{:2f}'.format(tag_array.detections[0].pose.pose.pose.position.z))
         orientation_value.set('{:2f}'.format(get_heading_from_quaternion(tag_array.detections[0].pose.pose.pose.orientation)))
-    
-    root.after(10, refresh)
-
-title_label = tk.Label(root, text="Tag detection")
-title_label.grid(row=0, column=0, columnspan=3)
-
-x_label = tk.Label(root, text="x:")
-x_label.grid(row=1, column=0)
-y_label = tk.Label(root, text="y:")
-y_label.grid(row=2, column=0)
-z_label = tk.Label(root, text="z:")
-z_label.grid(row=3, column=0)
-orientation_label = tk.Label(root, text="Orientation:")
-orientation_label.grid(row=4, column=0)
-
-x_value = tk.DoubleVar()
-y_value = tk.DoubleVar()
-z_value = tk.DoubleVar()
-orientation_value = tk.DoubleVar()
-
-x_value_label = tk.Label(root, textvariable=x_value)
-x_value_label.grid(row=1, column=1)
-y_value_label = tk.Label(root, textvariable=y_value)
-y_value_label.grid(row=2, column=1)
-z_value_label = tk.Label(root, textvariable=z_value)
-z_value_label.grid(row=3, column=1)
-orientation_value_label = tk.Label(root, textvariable=orientation_value)
-orientation_value_label.grid(row=4, column=1)
-
-refresh()
-root.mainloop()
+        

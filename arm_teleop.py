@@ -9,7 +9,7 @@ from os import environ
 
 # *************************************************************************************************
 
-VOTRE_NUMERO_EQUIPE = 1
+VOTRE_NUMERO_EQUIPE = 11
 SIM = True
 ADMIN = False
 VOTRE_NUMERO_ROBOT = 7
