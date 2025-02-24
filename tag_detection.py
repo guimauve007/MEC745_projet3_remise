@@ -48,7 +48,7 @@ def init_tag_detection():
 
 #root = tk.Tk()
 
-def updateTagDetectionData(x_value, y_value, z_value, orientation_value):
+def updateTagDetectionDisplay(x_value, y_value, z_value, orientation_value):
     if (tag_array.detections == []):
         x_value.set(0.00)
         y_value.set(0.00)

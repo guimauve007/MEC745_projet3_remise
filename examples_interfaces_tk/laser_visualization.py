@@ -8,7 +8,9 @@ import numpy as np
 from scipy.spatial.transform import Rotation as R
 import math, time
 import os, sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+current_dir = os.path.dirname(os.path.realpath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.append(parent_dir)
 from lab_utils.ip_config import get_ip
 from os import environ
 
@@ -134,8 +136,8 @@ def update_plot():
 buttons_frame = tk.Frame(root)
 buttons_frame.pack()
 
-linear_speed = 0.5
-angular_speed = 0.5
+linear_speed = 0.25
+angular_speed = 0.25
 
 btn_forward = tk.Button(buttons_frame, text="Forward", command=lambda: move_robot(linear_speed, 0))
 btn_left = tk.Button(buttons_frame, text="Left", command=lambda: move_robot(0, angular_speed))

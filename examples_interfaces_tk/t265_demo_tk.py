@@ -12,14 +12,16 @@ import math
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib import pyplot as plt
 import os, sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+current_dir = os.path.dirname(os.path.realpath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.append(parent_dir)
 from lab_utils.ip_config import get_ip
 from os import environ
 
 
 # *************************************************************************************************
 
-VOTRE_NUMERO_EQUIPE = 11
+VOTRE_NUMERO_EQUIPE = 1
 SIM = True
 ADMIN = False
 VOTRE_NUMERO_ROBOT = 7
@@ -104,16 +106,16 @@ canvas = FigureCanvasTkAgg(fig, master=canvas_frame)
 canvas.get_tk_widget().pack()
 
 # Create Buttons for movement controls
-btn_up = Button(root, text="Up", command=lambda: move_robot(2, 0))
+btn_up = Button(root, text="Up", command=lambda: move_robot(0.25, 0))
 btn_up.grid(row=1, column=1)
 
-btn_left = Button(root, text="Left", command=lambda: move_robot(0, 1))
+btn_left = Button(root, text="Left", command=lambda: move_robot(0, 0.25))
 btn_left.grid(row=2, column=0)
 
-btn_down = Button(root, text="Down", command=lambda: move_robot(-2, 0))
+btn_down = Button(root, text="Down", command=lambda: move_robot(-0.25, 0))
 btn_down.grid(row=3, column=1)
 
-btn_right = Button(root, text="Right", command=lambda: move_robot(0, -1))
+btn_right = Button(root, text="Right", command=lambda: move_robot(0, -0.25))
 btn_right.grid(row=2, column=2)
 
 btn_stop = Button(root, text="Stop", command=lambda: move_robot(0, 0))

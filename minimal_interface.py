@@ -26,6 +26,8 @@ rate = rospy.Rate(50)
 
 # *************************************************************************************************
 
+# Global variables
+# Definir les variables globales ici
 
 # Camera subscriber callback
 cam_msg = Image()
@@ -40,6 +42,25 @@ else:
     cmd_drive_pub = rospy.Publisher('/mobile_manip/base/dingo_velocity_controller/cmd_drive', Drive, queue_size=1)
 cam_sub = rospy.Subscriber('/mobile_manip/d435i/color/image_raw', Image, cam_callback)
 init_tag_detection()
+
+## UPDATE D'AFFICHAGE (a mettre dans un autre fichier .py?)
+def updateTargetDestinationDisplay(x_clicked, y_clicked):
+    x_clicked_value.set('{:2f}'.format(x_clicked))
+    y_clicked_value.set('{:2f}'.format(y_clicked))
+
+## CONVERSIONS (a mettre dans un autre fichier .py?
+def convert_pixel_pos_to_distance(x_clicked, y_clicked):
+    # Convertir de position de pixel a une distance en m?
+    # ex.:
+    x_distance = 0.2*x_clicked
+    y_distance = 0.2*y_clicked
+
+
+    return x_distance, y_distance
+
+def distance_to_linear_angular(x_distance, y_distance):
+    # Convertir une distance en X Y en ratio de linear et angular a envoyer a move_robot()?
+    return
 
 
 ## DÉPLACEMENT DU ROBOT
@@ -89,16 +110,17 @@ def update_plot():
         imageTk = ImageTk.PhotoImage(image=image)
         label.configure(image=imageTk)
         label.image = imageTk
-        updateTagDetectionData(x_value, y_value, z_value, orientation_value)
+        updateTagDetectionDisplay(x_value, y_value, z_value, orientation_value)
     root.after(10, update_plot)  
 
 root = tk.Tk()
 
 # Main display
 label = tk.Label(root)
-label.pack()
+label.grid()
 buttons_frame = tk.Frame(root)
-buttons_frame.pack()
+buttons_frame.grid(row=1, column=0, columnspan=3)
+
 
 btn_forward = tk.Button(buttons_frame, text="Forward", command=lambda: move_robot(linear_speed, 0))
 btn_left = tk.Button(buttons_frame, text="Left", command=lambda: move_robot(0, angular_speed))
@@ -112,32 +134,69 @@ btn_stop.grid(row=1, column=1)
 btn_right.grid(row=1, column=2)
 btn_backward.grid(row=2, column=1)
 
-# Tag display
+# Load map image
+map_image = Image.open("Maps/a2230_map_closed_fliped.png")
+map_image = map_image.resize((500, 300))
+map_photo = ImageTk.PhotoImage(map_image)
+
+# Canvas for map
+def on_map_click(event):
+    x_clicked, y_clicked = event.x, event.y
+    print(f"Clicked at: ({x_clicked}, {y_clicked})")
+    updateTargetDestinationDisplay(x_clicked, y_clicked)
+    #move_robot(distance_to_linear_angular(convert_pixel_pos_to_distance()))  
+    move_robot(0.5, 0) # Example movement command
+
+canvas = tk.Canvas(root, width=500, height=300)
+canvas.create_image(0, 0, anchor=tk.NW, image=map_photo)
+canvas.bind("<Button-1>", on_map_click)
+canvas.grid()
+
+# Tag Detection Display
 x_value = tk.DoubleVar()
 y_value = tk.DoubleVar()
 z_value = tk.DoubleVar()
 orientation_value = tk.DoubleVar()
 
-title_label = tk.Label(root, text="Tag detection")
-title_label.grid(row=0, column=0, columnspan=3)
+tag_title_label = tk.Label(root, text="Tag Detection", anchor='e')
+tag_title_label.grid(row=6, column=3, sticky='se')
 
 x_label = tk.Label(root, text="x:")
-x_label.grid(row=1, column=0)
-y_label = tk.Label(root, text="y:")
-y_label.grid(row=2, column=0)
-z_label = tk.Label(root, text="z:")
-z_label.grid(row=3, column=0)
-orientation_label = tk.Label(root, text="Orientation:")
-orientation_label.grid(row=4, column=0)
-
+x_label.grid(row=7, column=2, sticky='se')
 x_value_label = tk.Label(root, textvariable=x_value)
-x_value_label.grid(row=1, column=1)
+x_value_label.grid(row=7, column=3, sticky='se')
+
+y_label = tk.Label(root, text="y:")
+y_label.grid(row=8, column=2, sticky='se')
 y_value_label = tk.Label(root, textvariable=y_value)
-y_value_label.grid(row=2, column=1)
+y_value_label.grid(row=8, column=3, sticky='se')
+
+z_label = tk.Label(root, text="z:")
+z_label.grid(row=9, column=2, sticky='se')
 z_value_label = tk.Label(root, textvariable=z_value)
-z_value_label.grid(row=3, column=1)
+z_value_label.grid(row=9, column=3, sticky='se')
+
+orientation_label = tk.Label(root, text="Orientation:")
+orientation_label.grid(row=10, column=2, sticky='se')
 orientation_value_label = tk.Label(root, textvariable=orientation_value)
-orientation_value_label.grid(row=4, column=1)
+orientation_value_label.grid(row=10, column=3, sticky='se')
+
+# Target destination display (north east position)
+x_clicked_value = tk.DoubleVar()
+y_clicked_value = tk.DoubleVar()
+
+target_title_label = tk.Label(root, text="Target Destination", anchor='e')
+target_title_label.grid(row=0, column=3, sticky='ne')
+
+x_clicked_label = tk.Label(root, text="x_clicked:")
+x_clicked_label.grid(row=1, column=2, sticky='ne')
+x_clicked_value_label = tk.Label(root, textvariable=x_clicked_value)
+x_clicked_value_label.grid(row=1, column=3, sticky='ne')
+
+y_clicked_label = tk.Label(root, text="y_clicked:")
+y_clicked_label.grid(row=2, column=2, sticky='ne')
+y_clicked_value_label = tk.Label(root, textvariable=y_clicked_value)
+y_clicked_value_label.grid(row=2, column=3, sticky='ne')
 
 update_plot()
 root.mainloop()
