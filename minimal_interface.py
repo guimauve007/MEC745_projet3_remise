@@ -55,6 +55,7 @@ MANUAL_ANGULAR_SPEED = 0.5 # rad/s
 
 # Paramètres de la map
 MAP_SCALING = 1/8
+PIXEL_TO_METER = 0.02 # mètres par pixel
 ROBOT_MAP_OFFSET_X = 1444.7 # position en X du robot dans la map d'origine (en pixels)
 ROBOT_MAP_OFFSET_Y = 1052.1 # position  en Y du robot dans la map d'origine (en pixels)
 
@@ -91,32 +92,24 @@ odometry_sub = rospy.Subscriber('/odometry/filtered', Odometry, odometry_callbac
 init_tag_detection()
 
 
-## UPDATE D'AFFICHAGE (a mettre dans un autre fichier .py?)
+# Update display
 def updateTargetDestinationDisplay(x_clicked, y_clicked):
     x_clicked_value.set('{:2f}'.format(x_clicked))
     y_clicked_value.set('{:2f}'.format(y_clicked))
 
 
-## CONVERSIONS (a mettre dans un autre fichier .py?)
-def convert_pixel_pos_to_distance(x_clicked, y_clicked):
-    # Convertir de position de pixel a une distance en m
-    x_distance = 0.02*x_clicked
-    y_distance = 0.02*y_clicked
-    
-    return x_distance, y_distance
-
-
 def convert_pos_to_pixel_distance(x_meter, y_meter):
-    # Convertir de distance en m a position de pixel
-    # en ajoutant le offset vu que le 0,0 du pixel est en haut a gauche de la map
-    x_pixel = x_meter/0.02
-    y_pixel = y_meter/0.02
+    """Conversion de distance en m à pixel"""
+
+    x_pixel = x_meter/PIXEL_TO_METER
+    y_pixel = y_meter/PIXEL_TO_METER
     
     return x_pixel, y_pixel
 
 
 def get_robot_map_pixel_position():
- 
+    """ retourne la position du robot dans la map dorigine """
+    
     robot_x, robot_y = convert_pos_to_pixel_distance(odom_msg.pose.pose.position.x, odom_msg.pose.pose.position.y)
     q = odom_msg.pose.pose.orientation  # Quaternion
     theta = get_heading_from_quaternion(q)
@@ -125,7 +118,8 @@ def get_robot_map_pixel_position():
 
 
 def create_path(x, y):
-
+    """Crée la trajectoire"""
+    
     start_x, start_y, theta = get_robot_map_pixel_position()
     start = Point(start_x+ROBOT_MAP_OFFSET_X, start_y+ROBOT_MAP_OFFSET_Y)
     end = Point(x, y)
@@ -140,6 +134,7 @@ def create_path(x, y):
 
 
 def get_heading_error(current_x, current_y, current_theta, target_x, target_y):
+    """retourne l'erreur de heading"""
     
     target_theta = atan2(target_y - current_y, target_x - current_x)
     heading_error = target_theta - current_theta
@@ -148,6 +143,7 @@ def get_heading_error(current_x, current_y, current_theta, target_x, target_y):
 
 
 def get_waypoint_distance(x1, y1, x2, y2):
+    """retourne la position entre le robot et le waypoint"""
     
     return sqrt((x2 - x1)**2 + (y2 - y1)**2)
 
@@ -156,6 +152,7 @@ def get_waypoint_distance(x1, y1, x2, y2):
 # Entrée : Quaternion [x, y ,z ,w]
 # Sortie : Angle de lacet (yaw) en radians
 def get_heading_from_quaternion(q):
+    """retourne le heading du robot en rad (-pi à pi)"""
     
     r = R.from_quat([q.x, q.y, q.z, q.w])
     angles = r.as_euler('xyz', degrees=False)
@@ -163,7 +160,8 @@ def get_heading_from_quaternion(q):
 
 
 def follow_path(path):
-
+    """suivi de trajectoire"""
+       
     # position actuelle du robot
     waypoint_index = 0
     while waypoint_index != len(path) :
@@ -177,7 +175,7 @@ def follow_path(path):
         waypoint_distance = get_waypoint_distance(robot_x, robot_y, waypoint_x, waypoint_y)
         waypoint_angle = get_heading_error(robot_x, robot_y, robot_cap, waypoint_x, waypoint_y)
 
-        if waypoint_distance < TOLERANCE_DISTANCE / 0.02:
+        if waypoint_distance < TOLERANCE_DISTANCE / PIXEL_TO_METER:
             waypoint_index +=1
             print(f"waypoint number: {waypoint_index}")
             print(f"robot position: {robot_x}, {robot_y}")
@@ -273,8 +271,6 @@ def on_map_click(event):
     x_clicked, y_clicked = event.x, event.y
     print(f"Clicked at: ({x_clicked}, {y_clicked})")
     updateTargetDestinationDisplay(x_clicked, y_clicked)
-    #move_robot(distance_to_linear_angular(convert_pixel_pos_to_distance()))  
-    #move_robot(0.5, 0) # Example movement command
     x_click_scaled = x_clicked/MAP_SCALING
     y_click_scaled = y_clicked/MAP_SCALING
     create_path(x_click_scaled, y_click_scaled)
