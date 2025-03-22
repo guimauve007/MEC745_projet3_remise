@@ -46,7 +46,6 @@ def get_heading_from_quaternion(q):
 def init_tag_detection():
     tag_sub = rospy.Subscriber('/mobile_manip/tag_detections', AprilTagDetectionArray, tag_callback)
 
-#root = tk.Tk()
 
 def updateTagDetectionDisplay(x_value, y_value, z_value, orientation_value):
     if (tag_array.detections == []):
@@ -55,8 +54,12 @@ def updateTagDetectionDisplay(x_value, y_value, z_value, orientation_value):
         z_value.set(0.00)
         orientation_value.set(0.00)
     else: # Affiche le premier tag de la liste detections
-        x_value.set('{:2f}'.format(tag_array.detections[0].pose.pose.pose.position.x))
-        y_value.set('{:2f}'.format(tag_array.detections[0].pose.pose.pose.position.y))
-        z_value.set('{:2f}'.format(tag_array.detections[0].pose.pose.pose.position.z))
-        orientation_value.set('{:2f}'.format(get_heading_from_quaternion(tag_array.detections[0].pose.pose.pose.orientation)))
+        if tag_array.detections[0].pose.pose.pose.position.x != []:
+            x_value.set('{:2f}'.format(tag_array.detections[0].pose.pose.pose.position.x))
+        if tag_array.detections[0].pose.pose.pose.position.y != []:
+            y_value.set('{:2f}'.format(tag_array.detections[0].pose.pose.pose.position.y))
+        if tag_array.detections[0].pose.pose.pose.position.z != []:
+            z_value.set('{:2f}'.format(tag_array.detections[0].pose.pose.pose.position.z))
+        if tag_array.detections[0].pose.pose.pose.orientation != []:
+            orientation_value.set('{:2f}'.format(get_heading_from_quaternion(tag_array.detections[0].pose.pose.pose.orientation)))
         
