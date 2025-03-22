@@ -11,7 +11,7 @@ from math import atan2, sqrt, pi
 import numpy as np
 
 # paramètres du suivi de trajectoire
-KP_ANGULAR = 1  # Gain proportionnel vitesse angulaire
+KP_ANGULAR = 0.8  # Gain proportionnel vitesse angulaire
 KP_LINEAR = 0.04  # Gain proportionnel vitesse linéaire
 MIN_LINEAR_SPEED = 0.15 # m/s
 MAX_LINEAR_SPEED = 0.5 # m/s

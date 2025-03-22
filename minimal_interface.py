@@ -61,7 +61,7 @@ def update_plot():
 
 def update_robot_pathing():
     robot_pathing.process()
-    root.after(10, update_robot_pathing)
+    root.after(500, update_robot_pathing)
 
 root = tk.Tk()
 
