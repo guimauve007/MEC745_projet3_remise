@@ -51,7 +51,8 @@ def update_plot():
     else:
         cv_image = bridge.imgmsg_to_cv2(global_variables.cam_msg, "rgb8")
         image = Image.fromarray(cv_image)
-        image = resize_image(image, 960, 540)
+        #image = resize_image(image, 960, 540)
+        image = resize_image(image, 600, 300)
         imageTk = ImageTk.PhotoImage(image=image)
         label.configure(image=imageTk)
         label.image = imageTk
@@ -67,24 +68,49 @@ root = tk.Tk()
 # Main display
 label = tk.Label(root)
 label.pack()
-buttons_frame = tk.Frame(root)
-buttons_frame.pack()
 
-btn_forward = tk.Button(buttons_frame, text="Forward", command=lambda: robot_control.move_robot(robot_control.get_manual_linear_speed(), 0))
-btn_left = tk.Button(buttons_frame, text="Left", command=lambda: robot_control.move_robot(0, robot_control.get_manual_angular_speed()))
-btn_backward = tk.Button(buttons_frame, text="Backward", command=lambda: robot_control.move_robot(-robot_control.get_manual_linear_speed(), 0))
-btn_right = tk.Button(buttons_frame, text="Right", command=lambda: robot_control.move_robot(0, -robot_control.get_manual_angular_speed()))
-btn_stop = tk.Button(buttons_frame, text="Stop", command=lambda: robot_control.move_robot(0,0))
-
+# *************************************************************************************************
+# Manual movement buttons
+# Top manual button
+manual_buttons_top_frame = tk.Frame(root)
+manual_buttons_top_frame.pack()
+btn_forward = tk.Button(manual_buttons_top_frame, text="Forward", command=lambda: robot_control.move_robot(robot_control.get_manual_linear_speed(), 0))
 btn_forward.pack()
+
+# Middle row buttons
+manual_buttons_middle_frame = tk.Frame(root)
+manual_buttons_middle_frame.pack()
+btn_left = tk.Button(manual_buttons_middle_frame, text="Left", command=lambda: robot_control.turn_robot_lef())
+btn_stop = tk.Button(manual_buttons_middle_frame, text="Stop", command=lambda: robot_control.stop_robot())
+btn_right = tk.Button(manual_buttons_middle_frame, text="Right", command=lambda: robot_control.turn_robot_right())
+
 btn_left.pack(side=tk.LEFT)
 btn_stop.pack(side=tk.LEFT)
 btn_right.pack(side=tk.LEFT)
-btn_backward.pack()
 
+# Bottom manual button
+manual_buttons_bottom_frame = tk.Frame(root)
+manual_buttons_bottom_frame.pack()
+btn_backward = tk.Button(manual_buttons_bottom_frame, text="Backward", command=lambda: robot_control.move_robot(-robot_control.get_manual_linear_speed(), 0))
+btn_backward.pack()
+# *************************************************************************************************
+# Specicif buttons
+# Robot arm control and exit auto-pathing mode buttons
+specific_buttons_frame = tk.Frame(root)
+specific_buttons_frame.pack()
+btn_exit_auto_pathing_mode = tk.Button(specific_buttons_frame, text="Exit auto-pathing", command=lambda: robot_pathing.force_exit_pathing_mode())
+btn_activate_robot_arm = tk.Button(specific_buttons_frame, text="Activate robot arm", command=lambda: robot_control.activate_robot_arm())
+
+btn_exit_auto_pathing_mode.pack(side=tk.LEFT)
+btn_activate_robot_arm.pack(side=tk.LEFT)
+# *************************************************************************************************
+
+# *************************************************************************************************
 # Load map image
 map_image = Image.open("/home/jupyter-mecbotg11/Project5/Maps/a2230_map_closed.png")
-map_image = map_image.resize((int(map_image.width * MAP_SCALING), int(map_image.height * MAP_SCALING)))  # Resize the image
+map_width_scaled = int(map_image.width * MAP_SCALING)
+map_height_scaled = int(map_image.height * MAP_SCALING)
+map_image = map_image.resize((map_width_scaled, map_height_scaled))  # Resize the image
 map_photo = ImageTk.PhotoImage(map_image)
 
 # Canvas for map
@@ -98,18 +124,25 @@ def on_map_click(event):
     robot_pathing.set_move_to_destination(True)
     robot_pathing.set_create_path(True)
 
-canvas = tk.Canvas(root, width=500, height=300)
+canvas = tk.Canvas(root, width=map_width_scaled, height=map_height_scaled)
 canvas.create_image(0, 0, anchor=tk.NW, image=map_photo)
 canvas.bind("<Button-1>", on_map_click)
 canvas.pack()
+# *************************************************************************************************
+
+# *************************************************************************************************
+# Different text displays
+# Create a main container frame
+main_labels_frame = tk.Frame(root)
+main_labels_frame.pack()
 
 # Tag Detection Display
-tag_frame = tk.Frame(root)
-
 x_value = tk.DoubleVar()
 y_value = tk.DoubleVar()
 z_value = tk.DoubleVar()
 orientation_value = tk.DoubleVar()
+
+tag_frame = tk.Frame(main_labels_frame)
 
 # Tag Detection Label
 tk.Label(tag_frame, text="Tag Detection").pack()
@@ -135,14 +168,13 @@ tk.Label(orientation_frame, text="Orientation:").pack(side="left")
 tk.Label(orientation_frame, textvariable=orientation_value).pack(side="left")
 orientation_frame.pack()
 
-tag_frame.pack()
-
-# Target destination display (north east position)
-target_frame = tk.Frame(root)
-
+tag_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+# *************************************************************************************************
+# Target destination display
 x_clicked_value = tk.DoubleVar()
 y_clicked_value = tk.DoubleVar()
 
+target_frame = tk.Frame(main_labels_frame)
 
 # Target Destination Label
 tk.Label(target_frame, text="Target Destination").pack()
@@ -158,7 +190,8 @@ tk.Label(y_clicked_frame, text="y_clicked:").pack(side="left")
 tk.Label(y_clicked_frame, textvariable=y_clicked_value).pack(side="left")
 y_clicked_frame.pack()
 
-target_frame.pack()
+target_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+# *************************************************************************************************
 
 update_plot()
 update_robot_pathing()

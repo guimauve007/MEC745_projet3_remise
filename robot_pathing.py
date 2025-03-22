@@ -65,6 +65,16 @@ def create_path(x, y):
         pt = global_variables.astarPlanner.finalPath[i].tuple()
         print(pt) # Imprime la liste de positions du trajet
 
+def exit_pathing_mode():
+    global_variables.waypoint_index = 0
+    global_variables.moveToDestination = False
+    global_variables.currentPath = None
+    robot_control.stop_robot()
+
+def force_exit_pathing_mode():
+    exit_pathing_mode()
+    print("Pathing mode was exited manually")
+
 def follow_path():
     """suivi de trajectoire"""
        
@@ -109,7 +119,6 @@ def process():
         follow_path()
     
     if global_variables.waypoint_index > 0 and global_variables.waypoint_index == len(global_variables.currentPath):
-        global_variables.waypoint_index = 0
-        global_variables.moveToDestination = False
+        exit_pathing_mode()
         print("Robot reached it's destination!")
     
