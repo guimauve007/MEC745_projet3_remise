@@ -13,7 +13,6 @@ VOTRE_NUMERO_ROBOT = 7
 
 SIM = True
 
-
 # ROS subscribers et publishers
 def initialize_subscribers():
     robot_callbacks.subscribe(SIM)
@@ -34,7 +33,6 @@ def initialize_all():
     initialize_subscribers()
 
     # Call all init functions here
-    tag_detection.init_tag_detection()
     robot_pathing.robot_pathing_init()
 
     print("Initialization done")
