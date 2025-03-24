@@ -15,10 +15,10 @@ KP_ANGULAR = 0.8  # Gain proportionnel vitesse angulaire
 KP_LINEAR = 0.04  # Gain proportionnel vitesse linéaire
 MIN_LINEAR_SPEED = 0.15 # m/s
 MAX_LINEAR_SPEED = 0.5 # m/s
-MIN_ANGULAR_SPEED = 0.05 # rad/s
+MIN_ANGULAR_SPEED = 0.3 # rad/s
 MAX_ANGULAR_SPEED = 0.5 # rad/s
 TOLERANCE_ANGLE = 0.05 # rad
-TOLERANCE_DISTANCE = 0.05 # m
+TOLERANCE_DISTANCE = 0.3 # m
 
 def robot_pathing_init():
     # Global variables init
@@ -58,8 +58,12 @@ def create_path(x, y):
     print(f"start x: {start.x}, end x: {end.x}")
     print(f"start y: {start.y}, end y: {end.y}")
 
-    global_variables.astarPlanner.plan(start, end)
+    path_output = global_variables.astarPlanner.plan(start, end)
     global_variables.currentPath = global_variables.astarPlanner.finalPath
+
+    if len(global_variables.currentPath) == 0:
+        print("Cannot reach destination, try again!")
+        return
 
     for i in range(len(global_variables.astarPlanner.finalPath)-1):
         pt = global_variables.astarPlanner.finalPath[i].tuple()
@@ -90,7 +94,7 @@ def follow_path():
         waypoint_distance = get_waypoint_distance(robot_x, robot_y, waypoint_x, waypoint_y)
         waypoint_angle = robot_positioning.get_heading_error(robot_x, robot_y, robot_cap, waypoint_x, waypoint_y)
 
-        if waypoint_distance < TOLERANCE_DISTANCE / robot_positioning.get_pixel_to_meter_ratio():
+        if waypoint_distance <= TOLERANCE_DISTANCE / robot_positioning.get_pixel_to_meter_ratio():
             global_variables.waypoint_index +=1
             print(f"waypoint number: {global_variables.waypoint_index}")
             print(f"robot position: {robot_x}, {robot_y}")
@@ -108,7 +112,7 @@ def follow_path():
             #print(f"Le robot ajuste son orientation. Différence d'angle : {difference_angle}")
             robot_control.move_robot(0, angular)  # Correction de l'orientation
             
-        rospy.sleep(0.1)
+        #rospy.sleep(0.1)
 
 def process():
     if global_variables.createPath == True:

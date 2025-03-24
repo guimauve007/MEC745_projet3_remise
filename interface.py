@@ -67,7 +67,7 @@ def update_plot():
 
 def update_robot_pathing():
     robot_pathing.process()
-    root.after(500, update_robot_pathing)
+    root.after(250, update_robot_pathing)
 
 def update_map():
     # Delete old oval (ancient position)
@@ -77,11 +77,13 @@ def update_map():
     x_position, y_position, theta = robot_positioning.get_robot_map_pixel_position()
     x_map_position = x_position + global_variables.map_offset_x
     y_map_position = y_position + global_variables.map_offset_y
+    #print(f"x_map_position: {x_map_position}, y_map_position: {y_map_position}")
     global_variables.current_position_oval_id = map.create_oval(
         x_map_position - global_variables.marker_radius, y_map_position - global_variables.marker_radius,
         x_map_position + global_variables.marker_radius, y_map_position + global_variables.marker_radius,
         fill="green", outline="black"
     )
+    map.pack()
     root.after(500, update_map) 
 
 root = tk.Tk()
@@ -225,6 +227,6 @@ target_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 # *************************************************************************************************
 
 update_plot()
-#update_map()
+update_map()
 update_robot_pathing()
 root.mainloop()
