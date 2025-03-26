@@ -20,6 +20,5 @@ global odom_msg
 
 # Interface
 global current_position_oval_id
+global destination_position_oval_id
 global marker_radius
-global map_offset_x
-global map_offset_y

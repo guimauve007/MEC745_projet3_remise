@@ -1,12 +1,9 @@
 import global_variables
 import initialization
-import robot_callbacks
 import robot_control
 import robot_pathing
 import robot_positioning
 import tag_detection
-
-from sensor_msgs.msg import Image
 
 #path planning includes
 from matplotlib import image as mpimg
@@ -20,10 +17,9 @@ from PIL import Image, ImageTk
 MAP_SCALING = 1/8
 
 def interface_init():
-    global_variables.current_position_oval_id = 0
-    global_variables.marker_radius = 2  # Radius of the marker in pixels
-    global_variables.map_offset_x = robot_positioning.get_robot_map_offset_x()*MAP_SCALING
-    global_variables.map_offset_y = robot_positioning.get_robot_map_offset_y()*MAP_SCALING
+    global_variables.current_position_oval_id     = 0
+    global_variables.destination_position_oval_id = 0
+    global_variables.marker_radius                = 2  # Radius of the marker in pixels
 
 # *************************************************************************************************
 # All initializations should be done here
@@ -75,9 +71,10 @@ def update_map():
         map.delete(global_variables.current_position_oval_id)
 
     x_position, y_position, theta = robot_positioning.get_robot_map_pixel_position()
-    x_map_position = x_position + global_variables.map_offset_x
-    y_map_position = y_position + global_variables.map_offset_y
+    x_map_position = (x_position + robot_positioning.get_robot_map_offset_x()) * MAP_SCALING
+    y_map_position = (y_position + robot_positioning.get_robot_map_offset_y()) * MAP_SCALING
     #print(f"x_map_position: {x_map_position}, y_map_position: {y_map_position}")
+
     global_variables.current_position_oval_id = map.create_oval(
         x_map_position - global_variables.marker_radius, y_map_position - global_variables.marker_radius,
         x_map_position + global_variables.marker_radius, y_map_position + global_variables.marker_radius,
@@ -86,13 +83,39 @@ def update_map():
     map.pack()
     root.after(500, update_map) 
 
+def create_map_destination_marker(x, y):
+    if global_variables.destination_position_oval_id != 0:
+        map.delete(global_variables.destination_position_oval_id)
+
+    global_variables.destination_position_oval_id = map.create_oval(
+        x - global_variables.marker_radius, y - global_variables.marker_radius,
+        x + global_variables.marker_radius, y + global_variables.marker_radius,
+        fill="blue", outline="black"
+)
+    
+def delete_map_destination_marker():
+    if global_variables.destination_position_oval_id != 0:
+        map.delete(global_variables.destination_position_oval_id)
+
+# Canvas for map
+def on_map_click(event):
+    x_clicked, y_clicked = event.x, event.y
+    print(f"Clicked at: ({x_clicked}, {y_clicked})")
+    updateTargetDestinationDisplay(x_clicked, y_clicked)
+    create_map_destination_marker(x_clicked, y_clicked)
+    x_click_scaled = x_clicked/MAP_SCALING
+    y_click_scaled = y_clicked/MAP_SCALING
+    robot_pathing.set_destination(x_click_scaled, y_click_scaled)
+    robot_pathing.set_move_to_destination(True)
+    robot_pathing.set_create_path(True)
+# *************************************************************************************************
+# Interface creation
 root = tk.Tk()
 
 # Main display
 label = tk.Label(root)
 label.pack()
 
-# *************************************************************************************************
 # Load map image
 map_image = Image.open("/home/jupyter-mecbotg11/Project5/Maps/a2230_map_closed.png")
 map_width_scaled = int(map_image.width * MAP_SCALING)
@@ -100,24 +123,15 @@ map_height_scaled = int(map_image.height * MAP_SCALING)
 map_image = map_image.resize((map_width_scaled, map_height_scaled))  # Resize the image
 map_photo = ImageTk.PhotoImage(map_image)
 
-# Canvas for map
-def on_map_click(event):
-    x_clicked, y_clicked = event.x, event.y
-    print(f"Clicked at: ({x_clicked}, {y_clicked})")
-    updateTargetDestinationDisplay(x_clicked, y_clicked)
-    x_click_scaled = x_clicked/MAP_SCALING
-    y_click_scaled = y_clicked/MAP_SCALING
-    robot_pathing.set_destination(x_click_scaled, y_click_scaled)
-    robot_pathing.set_move_to_destination(True)
-    robot_pathing.set_create_path(True)
-
 map = tk.Canvas(root, width=map_width_scaled, height=map_height_scaled)
 map.create_image(0, 0, anchor=tk.NW, image=map_photo)
 # Draw a marker (a small red circle) at the origin coordinates
 # Coordinates for the oval (circle) are defined by the top-left and bottom-right corners
+x_map_position = (0 + robot_positioning.get_robot_map_offset_x()) * MAP_SCALING
+y_map_position = (0 + robot_positioning.get_robot_map_offset_y()) * MAP_SCALING
 origin_oval_id = map.create_oval(
-    global_variables.map_offset_x - global_variables.marker_radius, global_variables.map_offset_y - global_variables.marker_radius,
-    global_variables.map_offset_x + global_variables.marker_radius, global_variables.map_offset_y + global_variables.marker_radius,
+    x_map_position - global_variables.marker_radius, y_map_position - global_variables.marker_radius,
+    x_map_position + global_variables.marker_radius, y_map_position + global_variables.marker_radius,
     fill="red", outline="black"
 )
 

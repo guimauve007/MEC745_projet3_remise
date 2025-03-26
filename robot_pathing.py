@@ -1,6 +1,7 @@
 import global_variables
 import robot_positioning
 import robot_control
+import interface
 
 import rospy
 from lab_utils.plan_utils import *
@@ -74,6 +75,7 @@ def exit_pathing_mode():
     global_variables.moveToDestination = False
     global_variables.currentPath = None
     robot_control.stop_robot()
+    interface.delete_map_destination_marker()
 
 def force_exit_pathing_mode():
     exit_pathing_mode()
@@ -124,5 +126,6 @@ def process():
     
     if global_variables.waypoint_index > 0 and global_variables.waypoint_index == len(global_variables.currentPath):
         exit_pathing_mode()
+        interface.delete_map_destination_marker()
         print("Robot reached it's destination!")
     
