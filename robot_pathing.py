@@ -1,7 +1,6 @@
 import global_variables
 import robot_positioning
 import robot_control
-import interface
 
 import rospy
 from lab_utils.plan_utils import *
@@ -54,17 +53,19 @@ def create_path(x, y):
     """Crée la trajectoire"""
     
     start_x, start_y, theta = robot_positioning.get_robot_map_pixel_position()
-    start = Point(start_x+robot_positioning.get_robot_map_offset_x(), start_y+robot_positioning.get_robot_map_offset_y())
+    start = Point(start_x+robot_positioning.get_robot_map_offset_x(), -start_y+robot_positioning.get_robot_map_offset_y())
     end = Point(x, y)
+
     print(f"start x: {start.x}, end x: {end.x}")
     print(f"start y: {start.y}, end y: {end.y}")
 
-    path_output = global_variables.astarPlanner.plan(start, end)
-    global_variables.currentPath = global_variables.astarPlanner.finalPath
-
-    if len(global_variables.currentPath) == 0:
+    try:
+        global_variables.astarPlanner.plan(start, end)
+        global_variables.currentPath = global_variables.astarPlanner.finalPath
+    except ValueError:
         print("Cannot reach destination, try again!")
-        return
+        exit_pathing_mode()
+        return  # Exit function safely
 
     for i in range(len(global_variables.astarPlanner.finalPath)-1):
         pt = global_variables.astarPlanner.finalPath[i].tuple()
@@ -75,7 +76,6 @@ def exit_pathing_mode():
     global_variables.moveToDestination = False
     global_variables.currentPath = None
     robot_control.stop_robot()
-    interface.delete_map_destination_marker()
 
 def force_exit_pathing_mode():
     exit_pathing_mode()
@@ -126,6 +126,5 @@ def process():
     
     if global_variables.waypoint_index > 0 and global_variables.waypoint_index == len(global_variables.currentPath):
         exit_pathing_mode()
-        interface.delete_map_destination_marker()
         print("Robot reached it's destination!")
     

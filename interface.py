@@ -5,6 +5,8 @@ import robot_pathing
 import robot_positioning
 import tag_detection
 
+import rospy
+
 #path planning includes
 from matplotlib import image as mpimg
 
@@ -20,7 +22,6 @@ def interface_init():
     global_variables.current_position_oval_id     = 0
     global_variables.destination_position_oval_id = 0
     global_variables.marker_radius                = 2  # Radius of the marker in pixels
-
 # *************************************************************************************************
 # All initializations should be done here
 rate = initialization.initialize_all()
@@ -66,14 +67,14 @@ def update_robot_pathing():
     root.after(250, update_robot_pathing)
 
 def update_map():
-    # Delete old oval (ancient position)
+    # Delete old position marker (ancient position)
     if global_variables.current_position_oval_id != 0:
         map.delete(global_variables.current_position_oval_id)
 
     x_position, y_position, theta = robot_positioning.get_robot_map_pixel_position()
     x_map_position = (x_position + robot_positioning.get_robot_map_offset_x()) * MAP_SCALING
-    y_map_position = (y_position + robot_positioning.get_robot_map_offset_y()) * MAP_SCALING
-    #print(f"x_map_position: {x_map_position}, y_map_position: {y_map_position}")
+    # We need to invert Y axis direction
+    y_map_position = (-y_position + robot_positioning.get_robot_map_offset_y()) * MAP_SCALING
 
     global_variables.current_position_oval_id = map.create_oval(
         x_map_position - global_variables.marker_radius, y_map_position - global_variables.marker_radius,
@@ -81,21 +82,19 @@ def update_map():
         fill="green", outline="black"
     )
     map.pack()
-    root.after(500, update_map) 
+    root.after(500, update_map)
 
 def create_map_destination_marker(x, y):
+    # Delete old destination marker (ancient position)
     if global_variables.destination_position_oval_id != 0:
         map.delete(global_variables.destination_position_oval_id)
 
     global_variables.destination_position_oval_id = map.create_oval(
         x - global_variables.marker_radius, y - global_variables.marker_radius,
         x + global_variables.marker_radius, y + global_variables.marker_radius,
-        fill="blue", outline="black"
-)
-    
-def delete_map_destination_marker():
-    if global_variables.destination_position_oval_id != 0:
-        map.delete(global_variables.destination_position_oval_id)
+        fill="yellow", outline="black"
+    )
+    map.pack()
 
 # Canvas for map
 def on_map_click(event):
