@@ -10,16 +10,30 @@ from matplotlib import image as mpimg
 from math import atan2, sqrt, pi
 import numpy as np
 
-# paramètres du suivi de trajectoire
-KP_ANGULAR = 0.8  # Gain proportionnel vitesse angulaire
-KP_LINEAR = 0.04  # Gain proportionnel vitesse linéaire
-MIN_LINEAR_SPEED = 0.15 # m/s
-MAX_LINEAR_SPEED = 0.5 # m/s
-MIN_ANGULAR_SPEED = 0.3 # rad/s
-MAX_ANGULAR_SPEED = 0.5 # rad/s
-TOLERANCE_ANGLE = 0.05 # rad
-TOLERANCE_DISTANCE = 0.3 # m
 
+# paramètres du suivi de trajectoire
+#if global_variables.simu_status == True:
+
+KP_ANGULAR = 0.4  # Gain proportionnel vitesse angulaire                val init (0.8)
+KP_LINEAR = 0.005  
+TOLERANCE_ANGLE = 0.04 # rad (val pre = 0.05) 
+TOLERANCE_DISTANCE = 0.6 # m (val pre = 0.3) 
+VITESSE_LINEAIRE_ANGULAIRE= 0.1
+
+#else:
+# KP_ANGULAR = 0.9  # Gain proportionnel vitesse angulaire                val init (0.8)
+# KP_LINEAR = 0.01  # Gain proportionnel vitesse linéaire                 val init (0.04)
+# TOLERANCE_ANGLE = 0.04 # rad (val pre = 0.05) 
+# TOLERANCE_DISTANCE = 0.6 # m (val pre = 0.3) 
+# VITESSE_LINEAIRE_ANGULAIRE = 0.05
+
+
+#MIN_LINEAR_SPEED = 0.0 # m/s            val init 0.15
+# MAX_LINEAR_SPEED = 0.5 # m/s
+# MIN_ANGULAR_SPEED = 0.2 # rad/s
+# MAX_ANGULAR_SPEED = 0.6 # rad/s
+
+# pas pir angle 0.08 et tol_dist 0.5
 def robot_pathing_init():
     # Global variables init
     global_variables.moveToDestination = False
@@ -102,17 +116,17 @@ def follow_path():
             print(f"robot position: {robot_x}, {robot_y}")
             return
 
-        linear = min(waypoint_distance*KP_LINEAR, MIN_LINEAR_SPEED)
+        linear = waypoint_distance*KP_LINEAR
             
         angular = waypoint_angle*KP_ANGULAR
         
         # Si l'angle est suffisamment proche de la cible, on peut se déplacer linéairement
         if abs(waypoint_angle) < TOLERANCE_ANGLE:
             #print("Le robot est correctement orienté, déplacement linéaire.")
-            robot_control.move_robot(linear, angular)
+            robot_control.move_robot(linear, angular) 
         else:
             #print(f"Le robot ajuste son orientation. Différence d'angle : {difference_angle}")
-            robot_control.move_robot(0, angular)  # Correction de l'orientation
+            robot_control.move_robot(VITESSE_LINEAIRE_ANGULAIRE, angular)  # Correction de l'orientation
             
         #rospy.sleep(0.1)
 

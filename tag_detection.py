@@ -32,10 +32,6 @@ def get_heading_from_quaternion(q):
         angles = r.as_euler('xyz', degrees=False)
         return angles[2]
 
-# def init_tag_detection():
-#     tag_sub = rospy.Subscriber('/mobile_manip/tag_detections', AprilTagDetectionArray, tag_callback)
-
-
 def updateTagDetectionDisplay(x_value, y_value, z_value, orientation_value):
     if (global_variables.tag_msg.detections == []):
         x_value.set(0.00)

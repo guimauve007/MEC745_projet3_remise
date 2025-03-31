@@ -85,7 +85,10 @@ def activate_robot_arm():
     # transfo camera -> robot
     X_CAM = 0.1852
     Y_CAM = 0.024896
-    Z_CAM = 0.45805 # should be 0.45805
+    if global_variables.simu_status == True:
+        Z_CAM = 0.45805
+    else:
+        Z_CAM = 0
 
     # matrice de transfo
     c_cr = th((X_CAM, Y_CAM, Z_CAM)) @ rh(R.from_euler('YZ', (90, -90), degrees=True))

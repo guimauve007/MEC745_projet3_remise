@@ -1,3 +1,5 @@
+global simu_status
+
 # Robot pathing variables
 # Variables
 global x_destination
@@ -22,3 +24,4 @@ global odom_msg
 global current_position_oval_id
 global destination_position_oval_id
 global marker_radius
+global robot_display_status
