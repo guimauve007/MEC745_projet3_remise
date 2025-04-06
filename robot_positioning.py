@@ -18,14 +18,14 @@ def get_robot_map_offset_y():
 # Entrée : Quaternion [x, y ,z ,w]
 # Sortie : Angle de lacet (yaw) en radians
 def get_heading_from_quaternion(q):
-    """retourne le heading du robot en rad (-pi à pi)"""
+    """returns the robot's heading in rad (-pi to pi)"""
     
     r = R.from_quat([q.x, q.y, q.z, q.w])
     angles = r.as_euler('xyz', degrees=False)
     return angles[2]
 
 def get_heading_error(current_x, current_y, current_theta, target_x, target_y):
-    """retourne l'erreur de heading"""
+    """returns the heading error"""
     
     target_theta = atan2(target_y - current_y, target_x - current_x)
     heading_error = target_theta - current_theta
@@ -33,7 +33,7 @@ def get_heading_error(current_x, current_y, current_theta, target_x, target_y):
     return heading_error
 
 def convert_pos_to_pixel_distance(x_meter, y_meter):
-    """Conversion de distance en m à pixel"""
+    """Conversion from distance in meters to pixel"""
 
     x_pixel = x_meter/PIXEL_TO_METER
     y_pixel = y_meter/PIXEL_TO_METER
@@ -41,7 +41,7 @@ def convert_pos_to_pixel_distance(x_meter, y_meter):
     return x_pixel, y_pixel
 
 def get_robot_map_pixel_position():
-    """ retourne la position du robot dans la map dorigine """
+    """ returns the robot's position in the original map """
     
     robot_x, robot_y = convert_pos_to_pixel_distance(global_variables.odom_msg.pose.pose.position.x, global_variables.odom_msg.pose.pose.position.y)
     q = global_variables.odom_msg.pose.pose.orientation  # Quaternion

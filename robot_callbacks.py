@@ -23,12 +23,12 @@ def publish_cmd_drive(cmd_drive_msg):
 def tag_callback(msg):
     global_variables.tag_msg  = msg
 
-def subscribe(sim):
+def subscribe():
     global_variables.cam_msg = Image()
     global_variables.odom_msg = Odometry()
     global_variables.tag_msg = AprilTagDetectionArray()
 
-    if sim:
+    if global_variables.SIMULATION_STATUS == True:
         global_variables.cmd_drive_pub = rospy.Publisher('/mobile_manip/dingo_velocity_controller/cmd_drive', Drive, queue_size=1)
         global_variables.cam_sub = rospy.Subscriber('/mobile_manip/d435i/color/image_raw', Image, cam_callback)
     else:

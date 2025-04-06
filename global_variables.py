@@ -1,7 +1,14 @@
-global simu_status
+# Simulation or real status variable
+global SIMULATION_STATUS
 
 # Robot pathing variables
 # Variables
+global KP_ANGULAR
+global KP_LINEAR
+global TOLERANCE_ANGLE
+global TOLERANCE_DISTANCE
+global LINEAR_ANGULAR_SPEED
+
 global x_destination
 global y_destination
 global moveToDestination

@@ -15,7 +15,7 @@ from cv_bridge import CvBridge
 import tkinter as tk
 from PIL import Image, ImageTk
 
-# Paramètres de la map
+# Map parameters
 MAP_SCALING = 1/8
 
 def interface_init():
@@ -28,11 +28,6 @@ rate = initialization.initialize_all()
 interface_init()
 
 # *************************************************************************************************
-
-# Update display
-# def updateTargetDestinationDisplay(x_clicked, y_clicked):
-#     x_clicked_value.set('{:2f}'.format(x_clicked))
-#     y_clicked_value.set('{:2f}'.format(y_clicked))  
 
 def resize_image(image, max_width, max_height):
     width, height = image.size
@@ -100,10 +95,11 @@ def create_map_destination_marker(x, y):
 def on_map_click(event):
     x_clicked, y_clicked = event.x, event.y
     print(f"Clicked at: ({x_clicked}, {y_clicked})")
-    #updateTargetDestinationDisplay(x_clicked, y_clicked)
     create_map_destination_marker(x_clicked, y_clicked)
     x_click_scaled = x_clicked/MAP_SCALING
     y_click_scaled = y_clicked/MAP_SCALING
+    robot_pathing.exit_pathing_mode()
+    
     robot_pathing.set_destination(x_click_scaled, y_click_scaled)
     robot_pathing.set_move_to_destination(True)
     robot_pathing.set_create_path(True)
@@ -192,7 +188,7 @@ orientation_value = tk.DoubleVar()
 tag_frame = tk.Frame(main_labels_frame)
 
 # Tag Detection Label
-tk.Label(tag_frame, text="Tag Detection").pack()
+tk.Label(tag_frame, text="TAG DETECTION").pack()
 
 # Create a frame for each label-text pair
 x_frame = tk.Frame(tag_frame)
@@ -217,30 +213,21 @@ orientation_frame.pack()
 
 tag_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 # *************************************************************************************************
-# Target destination display
-# x_clicked_value = tk.DoubleVar()
-# y_clicked_value = tk.DoubleVar()
-
-# target_frame = tk.Frame(main_labels_frame)
-
-# # Target Destination Label
-# tk.Label(target_frame, text="Target Destination").pack()
-
-# # Create a frame for each label-text pair
-# x_clicked_frame = tk.Frame(target_frame)
-# tk.Label(x_clicked_frame, text="x_clicked:").pack(side="left")
-# tk.Label(x_clicked_frame, textvariable=x_clicked_value).pack(side="left")
-# x_clicked_frame.pack()
-
-# y_clicked_frame = tk.Frame(target_frame)
-# tk.Label(y_clicked_frame, text="y_clicked:").pack(side="left")
-# tk.Label(y_clicked_frame, textvariable=y_clicked_value).pack(side="left")
-# y_clicked_frame.pack()
-
-# target_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-# *************************************************************************************************
 # Robot status display
-global_variables.robot_display_status = tk.DoubleVar()
+global_variables.robot_display_status = tk.StringVar()
+global_variables.robot_display_status.set("Standby")
+
+robot_status_frame = tk.Frame(main_labels_frame)
+
+# Robot status Label
+tk.Label(robot_status_frame, text="ROBOT STATUS").pack()
+
+# # Create a frame for the label
+robot_status_msg_frame = tk.Frame(robot_status_frame)
+tk.Label(robot_status_msg_frame, textvariable=global_variables.robot_display_status).pack(side="left")
+robot_status_msg_frame.pack()
+
+robot_status_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
 update_plot()
 update_map()
