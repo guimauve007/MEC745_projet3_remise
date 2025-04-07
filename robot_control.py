@@ -17,6 +17,7 @@ from lab_utils.ip_config import get_ip
 INTERWHEEL_DISTANCE = 0.434 # m
 LEFT_WHEEL_RADIUS = 0.049 # m
 RIGHT_WHEEL_RADIUS = 0.049 # m
+GRIPPER_SIZE_OFFSET = 0.1 # m
 
 # Manual speeds
 MANUAL_LINEAR_SPEED = 0.5 # m/s
@@ -73,7 +74,7 @@ def activate_robot_arm():
 
 
     # camera -> robot transformation
-    X_CAM = 0.1852
+    X_CAM = 0.1852 - GRIPPER_SIZE_OFFSET # prevent the gripper from going through the tag
     Y_CAM = 0.024896
     if global_variables.SIMULATION_STATUS == True:
         Z_CAM = 0.45805
